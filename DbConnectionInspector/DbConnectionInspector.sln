@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionInspector", "DbConnectionInspector\DbConnectionInspector.csproj", "{CEE2A437-1A00-4777-BA10-952CCA62093F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionInspector.UnitTests", "..\DbConnectionInspector.UnitTests\DbConnectionInspector.UnitTests.csproj", "{9C9535F2-ABD0-44ED-B0CD-35F379201B95}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CEE2A437-1A00-4777-BA10-952CCA62093F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEE2A437-1A00-4777-BA10-952CCA62093F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEE2A437-1A00-4777-BA10-952CCA62093F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEE2A437-1A00-4777-BA10-952CCA62093F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
