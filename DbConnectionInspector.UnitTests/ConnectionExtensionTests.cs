@@ -1,4 +1,5 @@
-﻿using DbConnectionInspector.Extensions;
+﻿using DbConnectionInspector.Connections;
+using DbConnectionInspector.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -14,7 +15,7 @@ public class ConnectionExtensionTests
         var collection = new Mock<IServiceCollection>();
 
         // act
-        ConnectionExtension.AddPostgresConnection(collection.Object, "connection string");
+        ConnectionExtension.AddConnection<PostgresConnection>(collection.Object, "connection string");
 
 
         // assert
@@ -28,7 +29,7 @@ public class ConnectionExtensionTests
         var collection = new Mock<IServiceCollection>();
 
         // act
-        ConnectionExtension.AddPostgresConnection(collection.Object, () => "connection string");
+        ConnectionExtension.AddConnection<PostgresConnection>(collection.Object, () => "connection string");
 
         // assert
         collection.Invocations.Count.Should().Be(1);

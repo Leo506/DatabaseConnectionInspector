@@ -6,18 +6,13 @@ namespace DbConnectionInspector.Connections;
 
 public class PostgresConnection : IDatabaseConnection
 {
-    private readonly string _connectionString;
-
-    public PostgresConnection(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
+    public string? ConnectionString { get; set; }
 
     public async Task<bool> IsConnectionOpen()
     {
         try
         {
-            await using var conn = new NpgsqlConnection(_connectionString);
+            await using var conn = new NpgsqlConnection(ConnectionString);
             await conn.OpenAsync();
             return conn.State == ConnectionState.Open;
         }
