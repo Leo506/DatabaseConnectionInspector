@@ -1,4 +1,6 @@
-﻿using DbConnectionInspector.Abstractions;
+﻿using System.Data;
+using DbConnectionInspector.Abstractions;
+using DbConnectionInspector.Connections;
 using DbConnectionInspector.Core;
 using Microsoft.AspNetCore.Builder;
 
@@ -7,9 +9,8 @@ namespace DbConnectionInspector.Extensions;
 public static class InspectorExtension
 {
     public static IApplicationBuilder UseDbConnectionInspector(this IApplicationBuilder app,
-        params IDatabaseConnection[] connections)
+        ConnectionOptions options)
     {
-        app.UseMiddleware<Inspector>(connections);
-        return app;
+        return app.UseMiddleware<Inspector>(options);
     }
 }

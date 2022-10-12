@@ -1,29 +1,37 @@
 ﻿using DbConnectionInspector.Abstractions;
+using DbConnectionInspector.Connections;
 using Microsoft.AspNetCore.Http;
 
 namespace DbConnectionInspector.Core;
 
 public class Inspector
 {
-    private readonly RequestDelegate _delegate;
-    private readonly IDatabaseConnection[] _connections;
+    private readonly RequestDelegate _next;
+    private readonly ConnectionOptions? _connectionOptions;
 
-    public Inspector(RequestDelegate @delegate, params IDatabaseConnection[] connections)
+    public Inspector(RequestDelegate next, ConnectionOptions connectionOptions)
     {
-        _delegate = @delegate;
-        _connections = connections;
+        _next = next;
+        _connectionOptions = connectionOptions;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        foreach (var databaseConnection in _connections)
+        if (_connectionOptions == null)
         {
-            if (await databaseConnection.IsConnectionOpen()) continue;
-            
-            context.Response.StatusCode = 503;
+            await _next.Invoke(context);
             return;
         }
+        
+        foreach (var databaseConnection in _connectionOptions.Connections)
+        {
+            if (!await databaseConnection.IsConnectionOpen())
+            {
+                context.Response.StatusCode = 503;
+                return;
+            }
+        }
 
-        await _delegate(context);
+        await _next.Invoke(context);
     }
 }

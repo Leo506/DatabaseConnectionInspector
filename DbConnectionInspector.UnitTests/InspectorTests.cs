@@ -1,4 +1,5 @@
 using DbConnectionInspector.Abstractions;
+using DbConnectionInspector.Connections;
 using DbConnectionInspector.Core;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +16,10 @@ public class InspectorTests
         var connection = new Mock<IDatabaseConnection>();
         connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult(true));
         var requestDelegate = new Mock<RequestDelegate>();
-        var sut = new Inspector(requestDelegate.Object, connection.Object);
+        var sut = new Inspector(requestDelegate.Object, new ConnectionOptions()
+        {
+            Connections = new[] { connection.Object }
+        });
 
         // act
         await sut.InvokeAsync(default);
@@ -30,7 +34,10 @@ public class InspectorTests
         // arrange
         var connection = new Mock<IDatabaseConnection>();
         connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult(false));
-        var sut = new Inspector(new Mock<RequestDelegate>().Object, connection.Object);
+        var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
+        {
+            Connections = new[] { connection.Object }
+        });
         var context = new Mock<HttpContext>();
         context.SetupSet(httpContext => httpContext.Response.StatusCode = 503).Verifiable();
         
@@ -46,7 +53,7 @@ public class InspectorTests
     {
         // arrange
         var requestDelegate = new Mock<RequestDelegate>();
-        var sut = new Inspector(requestDelegate.Object);
+        var sut = new Inspector(requestDelegate.Object, null);
 
         // act
         await sut.InvokeAsync(default);
