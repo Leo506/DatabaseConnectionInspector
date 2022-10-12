@@ -8,7 +8,7 @@ public class PostgreConnectionTests
     public async Task IsConnectionOpen_Connection_Open_Returns_True()
     {
         // arrange
-        var sut = new PostgreConnection("User ID=admin;Password=password;Host=localhost;Port=5432;Database=Test");
+        var sut = new PostgresConnection("User ID=admin;Password=password;Host=localhost;Port=5432;Database=Test");
 
         // act
         var result = await sut.IsConnectionOpen();
@@ -21,7 +21,7 @@ public class PostgreConnectionTests
     public async Task IsConnectionOpen_Incorrect_Connection_String_Returns_False()
     {
         // arrange
-        var sut = new PostgreConnection("User ID=admin;Password=password;Host=localhost;Port=5433;Database=Test");
+        var sut = new PostgresConnection("User ID=admin;Password=password;Host=localhost;Port=5433;Database=Test");
 
         // act
         var result = await sut.IsConnectionOpen();

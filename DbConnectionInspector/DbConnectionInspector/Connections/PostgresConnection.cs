@@ -4,11 +4,11 @@ using Npgsql;
 
 namespace DbConnectionInspector.Connections;
 
-public class PostgreConnection : IDatabaseConnection
+public class PostgresConnection : IDatabaseConnection
 {
     private readonly string _connectionString;
 
-    public PostgreConnection(string connectionString)
+    public PostgresConnection(string connectionString)
     {
         _connectionString = connectionString;
     }
