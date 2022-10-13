@@ -4,12 +4,17 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>DatabaseConnectionInspector</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Leo506</Authors>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Title>Database connection inspector</Title>
+        <Description>Library for inspect database connections and prevent requests to its until establish conneciton (for Asp.Net apps)</Description>
+        <RepositoryUrl>https://github.com/Leo506/DatabaseConnectionInspector</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
       <PackageReference Include="Npgsql" Version="6.0.7" />
     </ItemGroup>
 
