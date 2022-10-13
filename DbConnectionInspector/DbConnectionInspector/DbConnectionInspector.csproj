@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>DatabaseConnectionInspector</PackageId>
-        <Version>1.0.0</Version>
+        <Version>1.0.1</Version>
         <Authors>Leo506</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Title>Database connection inspector</Title>
