@@ -34,19 +34,13 @@ public class Inspector
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (_connectionOptions == null)
+        if (_connectionOptions?.Connections == null)
         {
             _logger?.LogWarning(StringConstants.NoConnectionsProvided);
             await _next.Invoke(context);
             return;
         }
 
-        if (_connectionOptions.Connections == null)
-        {
-            await _next.Invoke(context);
-            return;
-        }
-        
         foreach (var databaseConnection in _connectionOptions.Connections)
         {
             if (!await databaseConnection.IsConnectionOpen())
