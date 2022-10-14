@@ -85,6 +85,7 @@ public class InspectorTests
         context.Verify();
     }
 
+    #region Logger invokation tests
     [Fact]
     public async Task InvokeAsync_No_Connections_Logger_Invoked()
     {
@@ -116,5 +117,20 @@ public class InspectorTests
 
         // assert
         logger.Invocations.Count.Should().Be(1);
+    }
+    #endregion
+
+    [Fact]
+    public async Task InvokeAsync_Connection_List_Is_Null_Success()
+    {
+        // arrange
+        var delegateMock = new Mock<RequestDelegate>();
+        var sut = new Inspector(delegateMock.Object, new ConnectionOptions(), null);
+
+        // act
+        await sut.InvokeAsync(default);
+
+        // assert
+        delegateMock.Invocations.Count.Should().Be(1);
     }
 }

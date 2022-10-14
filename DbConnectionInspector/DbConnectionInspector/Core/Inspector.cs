@@ -40,6 +40,12 @@ public class Inspector
             await _next.Invoke(context);
             return;
         }
+
+        if (_connectionOptions.Connections == null)
+        {
+            await _next.Invoke(context);
+            return;
+        }
         
         foreach (var databaseConnection in _connectionOptions.Connections)
         {
