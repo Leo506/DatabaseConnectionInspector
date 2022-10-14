@@ -61,4 +61,25 @@ public class InspectorTests
         // assert
         requestDelegate.Invocations.Count.Should().Be(1);
     }
+
+    [Fact]
+    public async Task InvokeAsync_Specify_Action_Action_Invoked()
+    {
+        // arrange
+        var connection = new Mock<IDatabaseConnection>();
+        connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult<bool>(false));
+        var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
+            {
+                Connections = new[] { connection.Object }
+            },
+            (HttpContext context) => context.Response.StatusCode = 404);
+        var context = new Mock<HttpContext>();
+        context.SetupSet(httpContext => httpContext.Response.StatusCode = 404).Verifiable();
+
+        // act
+        await sut.InvokeAsync(context.Object);
+
+        // assert
+        context.Verify();
+    }
 }

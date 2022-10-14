@@ -1,4 +1,5 @@
-﻿using DbConnectionInspector.Abstractions;
+﻿using System.Net;
+using DbConnectionInspector.Abstractions;
 using DbConnectionInspector.Connections;
 using Microsoft.AspNetCore.Http;
 
@@ -8,11 +9,20 @@ public class Inspector
 {
     private readonly RequestDelegate _next;
     private readonly ConnectionOptions? _connectionOptions;
+    private Action<HttpContext> _action;
 
     public Inspector(RequestDelegate next, ConnectionOptions connectionOptions)
     {
         _next = next;
         _connectionOptions = connectionOptions;
+        _action = context => context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+    }
+
+    public Inspector(RequestDelegate next, ConnectionOptions connectionOptions, Action<HttpContext> action)
+    {
+        _next = next;
+        _connectionOptions = connectionOptions;
+        _action = action;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -27,7 +37,7 @@ public class Inspector
         {
             if (!await databaseConnection.IsConnectionOpen())
             {
-                context.Response.StatusCode = 503;
+                _action.Invoke(context);
                 return;
             }
         }
