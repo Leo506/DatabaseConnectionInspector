@@ -39,8 +39,8 @@ app.UseDbConnectionInspector(new ConnectionOptions()
 {
     Checkers = new IConnectionChecker[]
     {
-        new ConnectionChecker(new NpgsqlConnection(connString)),
-        new ConnectionChecker(new MySqlConnection(connString))
+        new ConnectionChecker(new NpgsqlConnection(connString))
+        //new ConnectionChecker(new MySqlConnection(connString))
     }
 });
 

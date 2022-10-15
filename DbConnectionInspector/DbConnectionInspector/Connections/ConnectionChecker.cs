@@ -6,33 +6,36 @@ namespace DbConnectionInspector.Connections;
 
 public class ConnectionChecker : IConnectionChecker, IDisposable
 {
-    private readonly DbConnection _connection = null!;
-    private bool _isEstablish;
+    private readonly IDbConnection _connection;
 
     private static int _nextId = 1;
-    private int _instanceId;
+    private readonly int _instanceId;
     
-    public ConnectionChecker(DbConnection connection)
+    public ConnectionChecker(IDbConnection connection)
     {
-        try
-        {
-            _connection = connection;
-            _connection.StateChange += (sender, args) => _isEstablish = _connection.State == ConnectionState.Open;
-            _connection.Open();
-            _isEstablish = _connection.State == ConnectionState.Open;
-        }
-        catch
-        {
-            _isEstablish = false;
-        }
+        _connection = connection;
 
         _instanceId = _nextId;
         _nextId++;
     }
 
-    public Task<bool> IsConnectionEstablish()
+    public async Task<bool> IsConnectionEstablish()
     {
-        return Task.FromResult(_isEstablish);
+        try
+        {
+            if (_connection.State == ConnectionState.Closed)
+                _connection.Open();
+
+            var cmd = _connection.CreateCommand();
+            cmd.CommandText = "SELECT 1";
+            cmd.ExecuteScalar();
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
     public void Dispose()
