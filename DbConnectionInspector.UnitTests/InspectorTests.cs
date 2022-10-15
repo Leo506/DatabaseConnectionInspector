@@ -20,7 +20,7 @@ public class InspectorTests
         var requestDelegate = new Mock<RequestDelegate>();
         var sut = new Inspector(requestDelegate.Object, new ConnectionOptions()
         {
-            Connections = new[] { connection.Object }
+            Checkers = new[] { connection.Object }
         }, null);
 
         // act
@@ -38,7 +38,7 @@ public class InspectorTests
         connection.Setup(conn => conn.IsConnectionEstablish()).Returns(Task.FromResult(false));
         var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
         {
-            Connections = new[] { connection.Object }
+            Checkers = new[] { connection.Object }
         }, null);
         var context = new Mock<HttpContext>();
         context.SetupSet(httpContext => httpContext.Response.StatusCode = 503).Verifiable();
@@ -72,7 +72,7 @@ public class InspectorTests
         connection.Setup(conn => conn.IsConnectionEstablish()).Returns(Task.FromResult<bool>(false));
         var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
             {
-                Connections = new[] { connection.Object }
+                Checkers = new[] { connection.Object }
             },
             null, (HttpContext context) => context.Response.StatusCode = 404);
         var context = new Mock<HttpContext>();
@@ -109,7 +109,7 @@ public class InspectorTests
         var logger = new Mock<ILogger<Inspector>>();
         var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
         {
-            Connections = new[] { connection.Object }
+            Checkers = new[] { connection.Object }
         }, logger.Object);
 
         // act

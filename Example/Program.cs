@@ -6,6 +6,7 @@ using DbConnectionInspector.Connections;
 using DbConnectionInspector.Extensions;
 using Example.Database;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,31 +34,19 @@ if (app.Environment.IsDevelopment())
 
 // Here the common usage of library
 // but you can can use one of another ways
-/*app.UseDbConnectionInspector(new ConnectionOptions()
+app.UseDbConnectionInspector(new ConnectionOptions()
 {
-    Connections = new []
-    {
-        new PostgresConnectionChecker()
-        {
-            ConnectionString = connString
-        }
-    }
-});*/
+    Checkers = new IConnectionChecker[] { new ConnectionChecker(new NpgsqlConnection(connString)) }
+});
 
 // You may not provide any connection instances
 // In this case checking would be always succeed
-/* app.UseDbConnectionInspector(new ConnectionOptions()); */
+/*app.UseDbConnectionInspector(new ConnectionOptions()); */
 
 // You may specify what action would be invoked if connection failed
 /*app.UseDbConnectionInspector(new ConnectionOptions()
 {
-    Connections = new []
-    {
-        new PostgresConnection()
-        {
-            ConnectionString = connString
-        }
-    }
+    Checkers = new IConnectionChecker[] { new ConnectionChecker(new NpgsqlConnection(connString)) }
 }, context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest);*/
 
 app.UseHttpsRedirection();
