@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionInspector", "Db
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionInspector.UnitTests", "..\DbConnectionInspector.UnitTests\DbConnectionInspector.UnitTests.csproj", "{9C9535F2-ABD0-44ED-B0CD-35F379201B95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionInspector.IntegrationTests", "..\DbConnectionInspector.IntegrationTests\DbConnectionInspector.IntegrationTests.csproj", "{2C7965F6-B11B-427A-BAD7-6F9897C276D0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "..\Example\Example.csproj", "{A4FD6B56-A4E9-4ED5-BD8B-21132A33802C}"
 EndProject
 Global
@@ -22,10 +20,6 @@ Global
 		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C9535F2-ABD0-44ED-B0CD-35F379201B95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2C7965F6-B11B-427A-BAD7-6F9897C276D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C7965F6-B11B-427A-BAD7-6F9897C276D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C7965F6-B11B-427A-BAD7-6F9897C276D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C7965F6-B11B-427A-BAD7-6F9897C276D0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A4FD6B56-A4E9-4ED5-BD8B-21132A33802C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A4FD6B56-A4E9-4ED5-BD8B-21132A33802C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4FD6B56-A4E9-4ED5-BD8B-21132A33802C}.Release|Any CPU.ActiveCfg = Release|Any CPU

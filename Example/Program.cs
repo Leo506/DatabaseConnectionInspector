@@ -33,16 +33,16 @@ if (app.Environment.IsDevelopment())
 
 // Here the common usage of library
 // but you can can use one of another ways
-app.UseDbConnectionInspector(new ConnectionOptions()
+/*app.UseDbConnectionInspector(new ConnectionOptions()
 {
     Connections = new []
     {
-        new PostgresConnection()
+        new PostgresConnectionChecker()
         {
             ConnectionString = connString
         }
     }
-});
+});*/
 
 // You may not provide any connection instances
 // In this case checking would be always succeed

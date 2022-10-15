@@ -5,5 +5,5 @@ namespace DbConnectionInspector.Connections;
 
 public class ConnectionOptions
 {
-    public IDatabaseConnection[]? Connections { get; set; }
+    public IConnectionChecker[]? Connections { get; set; }
 }

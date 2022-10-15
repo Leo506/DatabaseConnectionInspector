@@ -15,8 +15,8 @@ public class InspectorTests
     public async Task InvokeAsync_Connection_Established_Success()
     {
         // arrange
-        var connection = new Mock<IDatabaseConnection>();
-        connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult(true));
+        var connection = new Mock<IConnectionChecker>();
+        connection.Setup(conn => conn.IsConnectionEstablish()).Returns(Task.FromResult(true));
         var requestDelegate = new Mock<RequestDelegate>();
         var sut = new Inspector(requestDelegate.Object, new ConnectionOptions()
         {
@@ -34,8 +34,8 @@ public class InspectorTests
     public async Task InvokeAsync_Connection_Failed_Write_503_Code()
     {
         // arrange
-        var connection = new Mock<IDatabaseConnection>();
-        connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult(false));
+        var connection = new Mock<IConnectionChecker>();
+        connection.Setup(conn => conn.IsConnectionEstablish()).Returns(Task.FromResult(false));
         var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
         {
             Connections = new[] { connection.Object }
@@ -68,8 +68,8 @@ public class InspectorTests
     public async Task InvokeAsync_Specify_Action_Action_Invoked()
     {
         // arrange
-        var connection = new Mock<IDatabaseConnection>();
-        connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult<bool>(false));
+        var connection = new Mock<IConnectionChecker>();
+        connection.Setup(conn => conn.IsConnectionEstablish()).Returns(Task.FromResult<bool>(false));
         var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
             {
                 Connections = new[] { connection.Object }
@@ -104,8 +104,8 @@ public class InspectorTests
     public async Task InvokeAsync_Connection_Failed_Logger_Invoked()
     {
         // arrange
-        var connection = new Mock<IDatabaseConnection>();
-        connection.Setup(conn => conn.IsConnectionOpen()).Returns(Task.FromResult<bool>(false));
+        var connection = new Mock<IConnectionChecker>();
+        connection.Setup(conn => conn.IsConnectionEstablish()).Returns(Task.FromResult<bool>(false));
         var logger = new Mock<ILogger<Inspector>>();
         var sut = new Inspector(new Mock<RequestDelegate>().Object, new ConnectionOptions()
         {

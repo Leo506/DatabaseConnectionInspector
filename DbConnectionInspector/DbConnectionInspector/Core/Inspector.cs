@@ -43,7 +43,7 @@ public class Inspector
 
         foreach (var databaseConnection in _connectionOptions.Connections)
         {
-            if (!await databaseConnection.IsConnectionOpen())
+            if (!await databaseConnection.IsConnectionEstablish())
             {
                 _logger?.LogError(string.Format(StringConstants.ConnectionFailed, databaseConnection.GetType().Name));
                 _action.Invoke(context);
