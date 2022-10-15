@@ -41,14 +41,20 @@ public class Inspector
             return;
         }
 
+        var result = true;
         foreach (var databaseConnection in _connectionOptions.Checkers)
         {
             if (!await databaseConnection.IsConnectionEstablish())
             {
-                _logger?.LogError(string.Format(StringConstants.ConnectionFailed, databaseConnection.GetType().Name));
-                _action.Invoke(context);
-                return;
+                _logger?.LogError(string.Format(StringConstants.ConnectionFailed, databaseConnection.ToString()));
+                result = false;
             }
+        }
+
+        if (!result)
+        {
+            _action.Invoke(context);
+            return;
         }
 
         await _next.Invoke(context);

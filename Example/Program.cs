@@ -6,6 +6,7 @@ using DbConnectionInspector.Connections;
 using DbConnectionInspector.Extensions;
 using Example.Database;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,7 +37,11 @@ if (app.Environment.IsDevelopment())
 // but you can can use one of another ways
 app.UseDbConnectionInspector(new ConnectionOptions()
 {
-    Checkers = new IConnectionChecker[] { new ConnectionChecker(new NpgsqlConnection(connString)) }
+    Checkers = new IConnectionChecker[]
+    {
+        new ConnectionChecker(new NpgsqlConnection(connString)),
+        new ConnectionChecker(new MySqlConnection(connString))
+    }
 });
 
 // You may not provide any connection instances

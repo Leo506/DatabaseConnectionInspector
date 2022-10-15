@@ -9,6 +9,9 @@ public class ConnectionChecker : IConnectionChecker, IDisposable
     private readonly DbConnection _connection = null!;
     private bool _isEstablish;
 
+    private static int _nextId = 1;
+    private int _instanceId;
+    
     public ConnectionChecker(DbConnection connection)
     {
         try
@@ -22,6 +25,9 @@ public class ConnectionChecker : IConnectionChecker, IDisposable
         {
             _isEstablish = false;
         }
+
+        _instanceId = _nextId;
+        _nextId++;
     }
 
     public Task<bool> IsConnectionEstablish()
@@ -33,5 +39,12 @@ public class ConnectionChecker : IConnectionChecker, IDisposable
     {
         _connection.Close();
         _connection.Dispose();
+    }
+
+    public override string ToString()
+    {
+        return
+            $"{nameof(ConnectionChecker)}#{_instanceId}(connection: {_connection.GetType().Name}, " +
+            $"connection string: \"{_connection.ConnectionString}\"";
     }
 }
