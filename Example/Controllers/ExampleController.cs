@@ -1,4 +1,5 @@
-﻿using Example.Database;
+﻿using DbConnectionInspector.Core;
+using Example.Database;
 using Example.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,12 +15,14 @@ public class ExampleController : Controller
     }
 
 
+    [RequireDbInspection]
     [HttpGet("/get")]
     public IActionResult Get()
     {
         return Ok(_dbContext.Models.ToList());
     }
 
+    [RequireDbInspection]
     [HttpPost("/post")]
     public IActionResult Post([FromBody] ExampleModel model)
     {

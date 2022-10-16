@@ -12,10 +12,12 @@ public class Inspector
     private readonly RequestDelegate _next;
     private readonly Action<HttpContext?> _action;
     private readonly ILogger<Inspector>? _logger;
+    private readonly ConnectionOptions _options;
 
-    public Inspector(RequestDelegate next, ILogger<Inspector>? logger = null)
+    public Inspector(RequestDelegate next, ConnectionOptions options, ILogger<Inspector>? logger = null)
     {
         _next = next;
+        _options = options;
         _action = context =>
         {
             if (context?.Response != null)
@@ -24,10 +26,11 @@ public class Inspector
         _logger = logger;
     }
 
-    public Inspector(RequestDelegate next, ILogger<Inspector>? logger, Action<HttpContext?> action)
+    public Inspector(RequestDelegate next, ConnectionOptions options, ILogger<Inspector>? logger, Action<HttpContext?> action)
     {
         _next = next;
         _action = action;
+        _options = options;
         _logger = logger;
     }
 
@@ -41,13 +44,15 @@ public class Inspector
             return;
         }
 
-        foreach (var require in endpoint.Metadata?.Where(metadata => metadata is IRequireDbInspection)
-                     .Select(m => m as IRequireDbInspection)!)
+        if (endpoint.Metadata.Any(m => m is RequireDbInspection))
         {
-            if (!await require?.CreateConnectionChecker().IsConnectionEstablish()!)
+            foreach (var connectionChecker in _options.Checkers)
             {
-                _action.Invoke(context);
-                return;
+                if (!await connectionChecker.IsConnectionEstablish())
+                {
+                    _action.Invoke(context);
+                    return;
+                }
             }
         }
 
