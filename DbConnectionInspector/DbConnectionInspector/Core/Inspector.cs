@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using DbConnectionInspector.Abstractions;
 using DbConnectionInspector.Connections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -17,7 +18,7 @@ public class Inspector
         _next = next;
         _action = context =>
         {
-            if (context != null)
+            if (context?.Response != null)
                 context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
         };
         _logger = logger;
@@ -33,5 +34,23 @@ public class Inspector
     public async Task InvokeAsync(HttpContext context)
     {
         var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
+
+        if (endpoint is null)
+        {
+            await _next.Invoke(context);
+            return;
+        }
+
+        foreach (var require in endpoint.Metadata?.Where(metadata => metadata is IRequireDbInspection)
+                     .Select(m => m as IRequireDbInspection)!)
+        {
+            if (!await require?.CreateConnectionChecker().IsConnectionEstablish()!)
+            {
+                _action.Invoke(context);
+                return;
+            }
+        }
+
+        await _next.Invoke(context);
     }
 }
