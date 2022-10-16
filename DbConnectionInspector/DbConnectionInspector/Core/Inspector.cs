@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using DbConnectionInspector.Connections;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace DbConnectionInspector.Core;
@@ -8,14 +9,12 @@ namespace DbConnectionInspector.Core;
 public class Inspector
 {
     private readonly RequestDelegate _next;
-    private readonly ConnectionOptions? _connectionOptions;
     private readonly Action<HttpContext?> _action;
     private readonly ILogger<Inspector>? _logger;
 
-    public Inspector(RequestDelegate next, ConnectionOptions? connectionOptions, ILogger<Inspector>? logger)
+    public Inspector(RequestDelegate next, ILogger<Inspector>? logger = null)
     {
         _next = next;
-        _connectionOptions = connectionOptions;
         _action = context =>
         {
             if (context != null)
@@ -24,39 +23,15 @@ public class Inspector
         _logger = logger;
     }
 
-    public Inspector(RequestDelegate next, ConnectionOptions? connectionOptions, ILogger<Inspector>? logger, Action<HttpContext?> action)
+    public Inspector(RequestDelegate next, ILogger<Inspector>? logger, Action<HttpContext?> action)
     {
         _next = next;
-        _connectionOptions = connectionOptions;
         _action = action;
         _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (_connectionOptions?.Checkers == null)
-        {
-            _logger?.LogWarning(StringConstants.NoConnectionsProvided);
-            await _next.Invoke(context);
-            return;
-        }
-
-        var result = true;
-        foreach (var databaseConnection in _connectionOptions.Checkers)
-        {
-            if (!await databaseConnection.IsConnectionEstablish())
-            {
-                _logger?.LogError(string.Format(StringConstants.ConnectionFailed, databaseConnection.ToString()));
-                result = false;
-            }
-        }
-
-        if (!result)
-        {
-            _action.Invoke(context);
-            return;
-        }
-
-        await _next.Invoke(context);
+        var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
     }
 }
