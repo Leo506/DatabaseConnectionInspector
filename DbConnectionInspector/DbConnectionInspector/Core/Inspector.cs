@@ -40,6 +40,14 @@ public class Inspector
 
         if (endpoint is null)
         {
+            _logger?.LogInformation(StringConstants.NoEndpoint);
+            await _next.Invoke(context);
+            return;
+        }
+
+        if (_options?.Checkers == null)
+        {
+            _logger?.LogInformation(StringConstants.NoConnectionsProvided);
             await _next.Invoke(context);
             return;
         }
@@ -50,12 +58,15 @@ public class Inspector
             {
                 if (!await connectionChecker.IsConnectionEstablish())
                 {
+                    _logger?.LogInformation(string.Format(StringConstants.ConnectionFailed,
+                        connectionChecker.ToString()));
                     _action.Invoke(context);
                     return;
                 }
             }
         }
 
+        _logger?.LogInformation(StringConstants.NoRequireInspection);
         await _next.Invoke(context);
     }
 }

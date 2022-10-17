@@ -1,6 +1,4 @@
-using System.Data;
 using System.Net;
-using Castle.Core.Logging;
 using DbConnectionInspector.Abstractions;
 using DbConnectionInspector.Connections;
 using DbConnectionInspector.Core;
@@ -12,8 +10,9 @@ using Moq;
 
 namespace DbConnectionInspector.UnitTests;
 
-public class InspectorTests
+public partial class InspectorTests
 {
+
     [Fact]
     public async Task InvokeAsync_Extract_Endpoint_Success()
     {
