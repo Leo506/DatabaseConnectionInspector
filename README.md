@@ -3,7 +3,7 @@ Library for inspect database connections and prevent requests to its until estab
 
 
 ## Library Purpose
-Library porpose is to try to help achieve max app reliability by handling database connection state. That is if your database server was down app would continue it's work
+Library purpose is to try to help achieve max app reliability by handling database connection state. That is if your database server was down app would continue it's work
 
 ## Features list v1.0
 - [x] Embedding inspector to request pipeline
@@ -11,15 +11,20 @@ Library porpose is to try to help achieve max app reliability by handling databa
 
 ## Features list v2.0
 - [x] Specify action that would be invoke if connection failed 
-- [x] Support for all connection providers who provide a class that implements `DbConnection` class
+- [x] Support for all connection providers who provide a class that implements `IDbConnection` interface
 - [x] Logger for inspector
 ### Note
 Architecture has been redesigned, so a new version is not compatible with old one
+
+## Features list v3.0
+- [x] Attribute based inspection  
+Starting with this version connection inspection would be called only for controller methods marked by special attribute `RequireDbInspection`
 
 ## How to use library
 Here the example of how you can use this library in your Asp.Net project (from Exmaple project)
 
 ### Common use
+In your `Program.cs` or `Startup.cs` file:
 ```c#
 app.UseDbConnectionInspector(new ConnectionOptions()
 {
@@ -30,8 +35,18 @@ app.UseDbConnectionInspector(new ConnectionOptions()
     }
 });
 ```
+
+In your controller:
+```c#
+[RequireDbInspection]
+[HttpGet("/get")]
+public IActionResult Get()
+{
+    return Ok(_dbContext.Models.ToList());
+}
+```
 ### Without connections
-In this case checking would be always succeed
+In this case checking will be always succeed whether inspection is required or not
 ```c#
 app.UseDbConnectionInspector(new ConnectionOptions());
 ```
