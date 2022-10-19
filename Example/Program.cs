@@ -39,6 +39,11 @@ app.UseDbConnectionInspector(new ConnectionOptions(
     new ConnectionChecker(
         new NpgsqlConnection(connString), "Key1")));
 
+app.UseDbConnectionInspector(new ConnectionOptions()
+{
+    new ConnectionChecker(new NpgsqlConnection(connString))
+});
+
 // You may not provide any connection instances
 // In this case checking would be always succeed
 /*app.UseDbConnectionInspector(new ConnectionOptions()); */

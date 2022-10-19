@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections;
+using System.Data;
 using DbConnectionInspector.Abstractions;
 
 namespace DbConnectionInspector.Connections;
@@ -6,9 +7,9 @@ namespace DbConnectionInspector.Connections;
 /// <summary>
 /// Data object with array of instances <see cref="IConnectionChecker"/>
 /// </summary>
-public class ConnectionOptions
+public class ConnectionOptions : IEnumerable<IConnectionChecker>
 {
-    public IConnectionChecker[] Checkers { get; set; }
+    public List<IConnectionChecker> Checkers { get; set; }
 
     public ConnectionOptions(params IConnectionChecker[] checkers)
     {
@@ -17,6 +18,24 @@ public class ConnectionOptions
         if (hash.Count != actualCount)
             throw new InvalidOperationException("Can not add more than one IConnectionChecker with the same key");
         
-        Checkers = checkers;
+        Checkers = checkers.ToList();
+    }
+
+    public void Add(IConnectionChecker checker)
+    {
+        if (checker.Key != null && Checkers.Select(c => c.Key).Contains(checker.Key))
+            throw new InvalidOperationException("Can not add more than one IConnectionChecker with the same key");
+        
+        Checkers.Add(checker);
+    }
+
+    public IEnumerator<IConnectionChecker> GetEnumerator()
+    {
+        return Checkers.ToList().GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

@@ -14,7 +14,7 @@ public class ConnectionOptionsTests
         var sut = new ConnectionOptions(new Mock<IConnectionChecker>().Object, new Mock<IConnectionChecker>().Object);
         
         // assert
-        sut.Checkers.Length.Should().Be(2);
+        sut.Checkers.Count.Should().Be(2);
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class ConnectionOptionsTests
         var sut = new ConnectionOptions(checkerOne.Object, checkerTwo.Object);
 
         // assert
-        sut.Checkers.Length.Should().Be(2);
+        sut.Checkers.Count.Should().Be(2);
     }
 
     [Fact]
@@ -55,6 +55,6 @@ public class ConnectionOptionsTests
         var sut = new ConnectionOptions();
 
         // assert
-        sut.Checkers.Length.Should().Be(0);
+        sut.Checkers.Count.Should().Be(0);
     }
 }
