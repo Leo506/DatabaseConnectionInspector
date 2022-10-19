@@ -9,6 +9,8 @@ namespace DbConnectionInspector.Connections;
 /// </summary>
 public class ConnectionChecker : IConnectionChecker, IDisposable
 {
+    public string? Key { get; set; }
+    
     private readonly IDbConnection _connection;
 
     private static int _nextId = 1;
@@ -20,6 +22,8 @@ public class ConnectionChecker : IConnectionChecker, IDisposable
 
         _instanceId = _nextId;
         _nextId++;
+
+        Key = null;
     }
 
     public async Task<bool> IsConnectionEstablish()
@@ -40,6 +44,7 @@ public class ConnectionChecker : IConnectionChecker, IDisposable
             return false;
         }
     }
+
 
     public void Dispose()
     {
