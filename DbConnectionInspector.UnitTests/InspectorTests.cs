@@ -63,6 +63,25 @@ public partial class InspectorTests
     }
 
     [Fact]
+    public async Task InvokeAsync_Require_Inspection_No_Key_Failed_Specify_Action_Invoke()
+    {
+        // arrange
+        var extractorMock = MakeExtractor(new RequireDbInspection());
+
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupSet(context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest).Verifiable();
+
+        var sut = new Inspector(new Mock<RequestDelegate>().Object, MakeOptions(new CheckerData(null, false)),
+            extractorMock.Object, null, context => context!.Response.StatusCode = (int)HttpStatusCode.BadRequest);
+
+        // act
+        await sut.InvokeAsync(contextMock.Object);
+
+        // assert
+        contextMock.Verify();
+    }
+
+    [Fact]
     public async Task InvokeAsync_Require_Inspection_With_Key_One_Checkers_All_Good_Delegate_Invoke()
     {
         var delegateMock = new Mock<RequestDelegate>();
@@ -89,6 +108,25 @@ public partial class InspectorTests
             .Verifiable();
 
         var sut = new Inspector(delegateMock.Object, MakeOptions(new CheckerData("Key1", false)), extractorMock.Object);
+
+        // act
+        await sut.InvokeAsync(contextMock.Object);
+
+        // assert
+        contextMock.Verify();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_Require_Inspection_With_Key_One_Checker_Failed_Specify_Action_Invoke()
+    {
+        // arrange
+        var extractorMock = MakeExtractor(new RequireDbInspection("Key1"));
+
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupSet(context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest).Verifiable();
+
+        var sut = new Inspector(new Mock<RequestDelegate>().Object, MakeOptions(new CheckerData("Key1", false)),
+            extractorMock.Object, null, context => context!.Response.StatusCode = (int)HttpStatusCode.BadRequest);
 
         // act
         await sut.InvokeAsync(contextMock.Object);
@@ -127,6 +165,26 @@ public partial class InspectorTests
 
         var sut = new Inspector(delegateMock.Object,
             MakeOptions(new CheckerData(null, false), new CheckerData(null, true)), extractorMock.Object);
+
+        // act
+        await sut.InvokeAsync(contextMock.Object);
+
+        // assert
+        contextMock.Verify();
+    }
+
+    [Fact]
+    public async Task InvokeAsync_Require_Inspection_With_Key_Some_Checkers_Failed_Specify_Action_Invoke()
+    {
+        // arrange
+        var extractorMock = MakeExtractor(new RequireDbInspection("Key1"));
+
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupSet(context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest).Verifiable();
+
+        var sut = new Inspector(new Mock<RequestDelegate>().Object,
+            MakeOptions(new CheckerData(null, false), new CheckerData(null, true)),
+            extractorMock.Object, null, context => context!.Response.StatusCode = (int)HttpStatusCode.BadRequest);
 
         // act
         await sut.InvokeAsync(contextMock.Object);
