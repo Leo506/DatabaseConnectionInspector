@@ -2,7 +2,6 @@
 using DbConnectionInspector.Abstractions;
 using DbConnectionInspector.Connections;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 
 namespace DbConnectionInspector.Core;
@@ -16,11 +15,14 @@ public class Inspector
     private readonly Action<HttpContext?> _action;
     private readonly ILogger<Inspector>? _logger;
     private readonly ConnectionOptions _options;
+    private readonly IEndpointMetadataExtractor _extractor;
 
-    public Inspector(RequestDelegate next, ConnectionOptions options, ILogger<Inspector>? logger = null)
+    public Inspector(RequestDelegate next, ConnectionOptions options, IEndpointMetadataExtractor extractor,
+        ILogger<Inspector>? logger = null)
     {
         _next = next;
         _options = options;
+        _extractor = extractor;
         _action = context =>
         {
             if (context?.Response != null)
@@ -29,48 +31,46 @@ public class Inspector
         _logger = logger;
     }
 
-    public Inspector(RequestDelegate next, ConnectionOptions options, ILogger<Inspector>? logger,
+    public Inspector(RequestDelegate next, ConnectionOptions options, IEndpointMetadataExtractor extractor,
+        ILogger<Inspector>? logger,
         Action<HttpContext?> action)
     {
         _next = next;
         _action = action;
+        _extractor = extractor;
         _options = options;
         _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
-
-        if (endpoint is null)
+        var inspectionIsSuccess = true;
+        var requirements = _extractor.Extract<RequireDbInspection>(context);
+        foreach (var requireDbInspection in requirements)
         {
-            _logger?.LogInformation(StringConstants.NoEndpoint);
-            await _next.Invoke(context);
-            return;
-        }
-
-        if (_options?.Checkers == null)
-        {
-            _logger?.LogInformation(StringConstants.NoConnectionsProvided);
-            await _next.Invoke(context);
-            return;
-        }
-
-        if (endpoint.Metadata.Any(m => m is RequireDbInspection))
-        {
-            foreach (var connectionChecker in _options.Checkers)
+            if (requireDbInspection.ConnectionKey is null || _options.Checkers.FirstOrDefault(connectionChecker =>
+                    connectionChecker.Key == requireDbInspection.ConnectionKey) is null)
             {
-                if (!await connectionChecker.IsConnectionEstablish())
+                foreach (var connectionChecker in _options.Checkers)
                 {
-                    _logger?.LogInformation(string.Format(StringConstants.ConnectionFailed,
-                        connectionChecker.ToString()));
-                    _action.Invoke(context);
-                    return;
+                    if (await connectionChecker.IsConnectionEstablish()) continue;
+                    inspectionIsSuccess = false;
                 }
+            }
+            else
+            {
+                var checker = _options.Checkers.FirstOrDefault(connectionChecker =>
+                    connectionChecker.Key == requireDbInspection.ConnectionKey);
+                
+                if (await checker!.IsConnectionEstablish()) continue;
+                
+                inspectionIsSuccess = false;
             }
         }
 
-        _logger?.LogInformation(StringConstants.NoRequireInspection);
-        await _next.Invoke(context);
+        if (inspectionIsSuccess)
+            await _next.Invoke(context);
+        else
+            _action.Invoke(context);
     }
 }

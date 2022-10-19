@@ -29,4 +29,13 @@
       <ProjectReference Include="..\DbConnectionInspector\DbConnectionInspector\DbConnectionInspector.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="InspectorLoggingTests.cs">
+        <DependentUpon>InspectorTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="CheckersInvokationInInspectorTests.cs">
+        <DependentUpon>InspectorTests.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

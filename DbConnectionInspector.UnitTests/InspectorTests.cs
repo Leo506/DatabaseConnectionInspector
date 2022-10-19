@@ -4,8 +4,6 @@ using DbConnectionInspector.Connections;
 using DbConnectionInspector.Core;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace DbConnectionInspector.UnitTests;
@@ -14,141 +12,162 @@ public partial class InspectorTests
 {
 
     [Fact]
-    public async Task InvokeAsync_Extract_Endpoint_Success()
-    {
-        // arrange
-        
-        var success = false;
-        
-        var delegateMock = new Mock<RequestDelegate>();
-        
-        var context = MakeMockContext(delegateMock.Object);
-        context.Setup(c => c.Features.Get<IEndpointFeature>()).Callback(() => success = true);
-        
-        var sut = new Inspector(delegateMock.Object, null);
-
-        // act
-        await sut.InvokeAsync(context.Object);
-
-        // assert
-        success.Should().Be(true);
-    }
-
-    [Fact]
-    public async Task InvokeAsync_Extract_Metadata_Success()
-    {
-        // arrange
-
-        var context = MakeMockContextWithMetadata(new Mock<RequestDelegate>().Object, new RequireDbInspection());
-        var checkerMock = new Mock<IConnectionChecker>();
-        var sut = new Inspector(new Mock<RequestDelegate>().Object,
-            new ConnectionOptions() { Checkers = new[] { checkerMock.Object } });
-
-        // act
-        await sut.InvokeAsync(context.Object);
-
-        // assert
-        checkerMock.Invocations.Count.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
     public async Task InvokeAsync_No_Require_Inspection_Delegate_Invoke()
     {
         // arrange
         var delegateMock = new Mock<RequestDelegate>();
-        var context = MakeMockContext(delegateMock.Object);
-        var sut = new Inspector(delegateMock.Object, null);
+        var extractorMock = MakeExtractor();
+        var sut = new Inspector(delegateMock.Object, null, extractorMock.Object);
 
         // act
-        await sut.InvokeAsync(context.Object);
+        await sut.InvokeAsync(default);
 
         // assert
         delegateMock.Invocations.Count.Should().Be(1);
     }
 
     [Fact]
-    public async Task InvokeAsync_All_Good_Delegate_Invoke()
+    public async Task InvokeAsync_Require_Inspection_No_Key_All_Good_Delegate_Invoke()
     {
         // arrange
         var delegateMock = new Mock<RequestDelegate>();
-        
-        var checkerMock = new Mock<IConnectionChecker>();
-        checkerMock.Setup(c => c.IsConnectionEstablish()).Returns(Task.FromResult<bool>(true));
+        var extractorMock = MakeExtractor(new RequireDbInspection());
 
-        var context = MakeMockContextWithMetadata(delegateMock.Object, new RequireDbInspection());
-
-        var sut = new Inspector(delegateMock.Object,
-            new ConnectionOptions() { Checkers = new[] { checkerMock.Object } });
+        var sut = new Inspector(delegateMock.Object, MakeOptions(new CheckerData(null, true)), extractorMock.Object);
 
         // act
-        await sut.InvokeAsync(context.Object);
+        await sut.InvokeAsync(default!);
 
         // assert
         delegateMock.Invocations.Count.Should().Be(1);
     }
 
     [Fact]
-    public async Task InvokeAsync_Connection_Failed_Default_Action_Invoke()
+    public async Task InvokeAsync_Require_Inspection_No_Key_Failed_Default_Action_Invoke()
     {
         // arrange
-        var checkerMock = new Mock<IConnectionChecker>();
-        checkerMock.Setup(c => c.IsConnectionEstablish()).ReturnsAsync(false);
+        var extractorMock = MakeExtractor(new RequireDbInspection());
 
-        var context = MakeMockContextWithMetadata(new Mock<RequestDelegate>().Object, new RequireDbInspection());
-        context.SetupSet(c => c.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable).Verifiable();
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupSet(context => context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable)
+            .Verifiable();
 
         var sut = new Inspector(new Mock<RequestDelegate>().Object,
-            new ConnectionOptions() { Checkers = new[] { checkerMock.Object } });
+            MakeOptions(new CheckerData(null, false)), extractorMock.Object);
 
         // act
-        await sut.InvokeAsync(context.Object);
+        await sut.InvokeAsync(contextMock.Object);
 
         // assert
-        context.Verify();
+        contextMock.Verify();
     }
 
     [Fact]
-    public async Task InvokeAsync_Connection_Failed_Specify_Action_Invoke()
+    public async Task InvokeAsync_Require_Inspection_With_Key_One_Checkers_All_Good_Delegate_Invoke()
     {
-        // arrange
-        var checkerMock = new Mock<IConnectionChecker>();
-        checkerMock.Setup(c => c.IsConnectionEstablish()).ReturnsAsync(false);
+        var delegateMock = new Mock<RequestDelegate>();
+        var extractorMock = MakeExtractor(new RequireDbInspection("Key1"));
 
-        var context = MakeMockContextWithMetadata(new Mock<RequestDelegate>().Object, new RequireDbInspection());
-        context.SetupSet(c => c.Response.StatusCode = (int)HttpStatusCode.BadRequest).Verifiable();
+        var sut = new Inspector(delegateMock.Object, MakeOptions(new CheckerData("Key1", true)), extractorMock.Object);
 
-        var sut = new Inspector(new Mock<RequestDelegate>().Object,
-            new ConnectionOptions() { Checkers = new[] { checkerMock.Object } }, null, httpContext =>
-            {
-                if (httpContext != null) httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            });
-        
         // act
-        await sut.InvokeAsync(context.Object);
+        await sut.InvokeAsync(default!);
 
         // assert
-        context.Verify();
+        delegateMock.Invocations.Count.Should().Be(1);
     }
 
-    private Mock<HttpContext> MakeMockContext(RequestDelegate @delegate)
+    [Fact]
+    public async Task InvokeAsync_Require_Inspection_With_Key_One_Checker_Failed_Default_Action_Invoke()
     {
-        var endpoint = new Endpoint(@delegate, EndpointMetadataCollection.Empty, "");
-        var featureMock = new Mock<IEndpointFeature>();
-        featureMock.SetupGet(feature => feature.Endpoint).Returns(endpoint);
-        var context = new Mock<HttpContext>();
-        context.Setup(httpContext => httpContext.Features.Get<IEndpointFeature>()).Returns(featureMock.Object);
+        // arrange
+        var delegateMock = new Mock<RequestDelegate>();
+        var extractorMock = MakeExtractor(new RequireDbInspection("Key1"));
 
-        return context;
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupSet(context => context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable)
+            .Verifiable();
+
+        var sut = new Inspector(delegateMock.Object, MakeOptions(new CheckerData("Key1", false)), extractorMock.Object);
+
+        // act
+        await sut.InvokeAsync(contextMock.Object);
+
+        // assert
+        contextMock.Verify();
     }
 
-    private Mock<HttpContext> MakeMockContextWithMetadata(RequestDelegate @delegate, params object[] metadata)
+    [Fact]
+    public async Task InvokeAsync_Require_Inspection_With_Key_Some_Checkers_All_Good_Delegate_Invoke()
     {
-        var endpoint = new Endpoint(@delegate, new EndpointMetadataCollection(metadata), "");
-        var featureMock = new Mock<IEndpointFeature>();
-        featureMock.SetupGet(feature => feature.Endpoint).Returns(endpoint);
-        var context = new Mock<HttpContext>();
-        context.Setup(httpContext => httpContext.Features.Get<IEndpointFeature>()).Returns(featureMock.Object);
+        // arrange
+        var delegateMock = new Mock<RequestDelegate>();
+        var extractorMock = MakeExtractor(new RequireDbInspection("Key1"));
 
-        return context;
+        var sut = new Inspector(delegateMock.Object,
+            MakeOptions(new CheckerData(null, true), new CheckerData(null, true)), extractorMock.Object);
+
+        // act
+        await sut.InvokeAsync(default!);
+
+        // assert
+        delegateMock.Invocations.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_Require_Inspection_With_Key_Some_Checkers_Failed_Default_Action_Invoke()
+    {
+        // arrange
+        var delegateMock = new Mock<RequestDelegate>();
+        var extractorMock = MakeExtractor(new RequireDbInspection("Key1"));
+
+        var contextMock = new Mock<HttpContext>();
+        contextMock.SetupSet(context => context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable)
+            .Verifiable();
+
+        var sut = new Inspector(delegateMock.Object,
+            MakeOptions(new CheckerData(null, false), new CheckerData(null, true)), extractorMock.Object);
+
+        // act
+        await sut.InvokeAsync(contextMock.Object);
+
+        // assert
+        contextMock.Verify();
+    }
+
+
+    private static Mock<IEndpointMetadataExtractor> MakeExtractor(params RequireDbInspection[] attributes)
+    {
+        var extractorMock = new Mock<IEndpointMetadataExtractor>();
+        extractorMock.Setup(extractor => extractor.Extract<RequireDbInspection>(It.IsAny<HttpContext>()))
+            .Returns(new List<RequireDbInspection>(attributes));
+        return extractorMock;
+    }
+
+    private static ConnectionOptions MakeOptions(params CheckerData[] data)
+    {
+        var checkerList = new List<IConnectionChecker>();
+        foreach (var checkerData in data)
+        {
+            var mock = new Mock<IConnectionChecker>();
+            if (checkerData.Key != null)
+                mock.SetupGet(m => m.Key).Returns(checkerData.Key);
+            mock.Setup(m => m.IsConnectionEstablish()).ReturnsAsync(checkerData.ReturnValue);
+            checkerList.Add(mock.Object);
+        }
+
+        return new ConnectionOptions(checkerList.ToArray());
+    }
+    
+    private struct CheckerData
+    {
+        public readonly string? Key;
+        public readonly bool ReturnValue;
+
+        public CheckerData(string? key, bool returnValue)
+        {
+            Key = key;
+            ReturnValue = returnValue;
+        }
     }
 }
