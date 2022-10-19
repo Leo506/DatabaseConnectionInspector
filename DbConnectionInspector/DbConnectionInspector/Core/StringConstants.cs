@@ -2,7 +2,10 @@
 
 namespace DbConnectionInspector.Core;
 
-public class StringConstants
+/// <summary>
+/// Class containing messages for logging
+/// </summary>
+public static class StringConstants  // TODO rename class to LoggingMessages
 {
     public const string NoConnectionsProvided =
         "No database connections was provided so check has automatically passed";

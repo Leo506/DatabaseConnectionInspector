@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace DbConnectionInspector.Core;
 
+/// <summary>
+/// Class containing logic of connection checking
+/// </summary>
 public class Inspector
 {
     private readonly RequestDelegate _next;
@@ -26,7 +29,8 @@ public class Inspector
         _logger = logger;
     }
 
-    public Inspector(RequestDelegate next, ConnectionOptions options, ILogger<Inspector>? logger, Action<HttpContext?> action)
+    public Inspector(RequestDelegate next, ConnectionOptions options, ILogger<Inspector>? logger,
+        Action<HttpContext?> action)
     {
         _next = next;
         _action = action;

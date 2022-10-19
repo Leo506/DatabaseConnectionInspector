@@ -4,6 +4,9 @@ using DbConnectionInspector.Abstractions;
 
 namespace DbConnectionInspector.Connections;
 
+/// <summary>
+/// Class for validating connection to database
+/// </summary>
 public class ConnectionChecker : IConnectionChecker, IDisposable
 {
     private readonly IDbConnection _connection;
