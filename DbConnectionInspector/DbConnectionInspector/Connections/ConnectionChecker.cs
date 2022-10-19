@@ -15,15 +15,15 @@ public class ConnectionChecker : IConnectionChecker, IDisposable
 
     private static int _nextId = 1;
     private readonly int _instanceId;
-    
-    public ConnectionChecker(IDbConnection connection)
+
+    public ConnectionChecker(IDbConnection connection, string? key = null)
     {
         _connection = connection;
 
         _instanceId = _nextId;
         _nextId++;
 
-        Key = null;
+        Key = key;
     }
 
     public async Task<bool> IsConnectionEstablish()

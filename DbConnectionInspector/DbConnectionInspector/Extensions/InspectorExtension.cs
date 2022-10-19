@@ -24,7 +24,7 @@ public static class InspectorExtension
         ConnectionOptions options)
     {
         var logger = app.ApplicationServices.GetRequiredService<ILogger<Inspector>>();
-        return app.UseMiddleware<Inspector>(options, logger);
+        return app.UseMiddleware<Inspector>(options, new EndpointMetadataExtractor(), logger);
     }
 
     /// <summary>
@@ -37,6 +37,6 @@ public static class InspectorExtension
         Action<HttpContext> action)
     {
         var logger = app.ApplicationServices.GetRequiredService<ILogger<Inspector>>();
-        return app.UseMiddleware<Inspector>(options, logger, action);
+        return app.UseMiddleware<Inspector>(options, new EndpointMetadataExtractor(), logger, action);
     }
 }

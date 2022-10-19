@@ -15,7 +15,7 @@ public class ExampleController : Controller
     }
 
 
-    [RequireDbInspection]
+    [RequireDbInspection("Key1")]
     [HttpGet("/get")]
     public IActionResult Get()
     {
