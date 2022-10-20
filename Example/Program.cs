@@ -46,10 +46,10 @@ app.UseDbConnectionInspector(new ConnectionOptions()
 /*app.UseDbConnectionInspector(new ConnectionOptions()); */
 
 // You may specify what action would be invoked if connection failed
-app.UseDbConnectionInspector(new ConnectionOptions()
+/*app.UseDbConnectionInspector(new ConnectionOptions()
 {
     new ConnectionChecker(new NpgsqlConnection(connString))
-}, context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest);
+}, context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest);*/
 
 app.UseHttpsRedirection();
 
