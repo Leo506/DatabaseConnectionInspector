@@ -35,13 +35,10 @@ if (app.Environment.IsDevelopment())
 
 // Here the common usage of library
 // but you can can use one of another ways
-app.UseDbConnectionInspector(new ConnectionOptions(
-    new ConnectionChecker(
-        new NpgsqlConnection(connString), "Key1")));
-
 app.UseDbConnectionInspector(new ConnectionOptions()
 {
-    new ConnectionChecker(new NpgsqlConnection(connString))
+    new ConnectionChecker(new NpgsqlConnection(connString), "Key1"),
+    new ConnectionChecker(new MySqlConnection(connString), "Key2")
 });
 
 // You may not provide any connection instances
@@ -49,8 +46,10 @@ app.UseDbConnectionInspector(new ConnectionOptions()
 /*app.UseDbConnectionInspector(new ConnectionOptions()); */
 
 // You may specify what action would be invoked if connection failed
-/*app.UseDbConnectionInspector(new ConnectionOptions(new ConnectionChecker(new NpgsqlConnection(connString))),
-    context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest);*/
+app.UseDbConnectionInspector(new ConnectionOptions()
+{
+    new ConnectionChecker(new NpgsqlConnection(connString))
+}, context => context.Response.StatusCode = (int)HttpStatusCode.BadRequest);
 
 app.UseHttpsRedirection();
 
