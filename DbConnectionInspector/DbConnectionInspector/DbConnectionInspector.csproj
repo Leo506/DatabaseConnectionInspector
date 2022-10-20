@@ -5,12 +5,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>DatabaseConnectionInspector</PackageId>
-        <Version>3.0.1</Version>
+        <Version>3.1.0</Version>
         <Authors>Leo506</Authors>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Title>Database connection inspector</Title>
         <Description>Library for inspect database connections and prevent requests to its until establish conneciton (for Asp.Net apps)</Description>
         <RepositoryUrl>https://github.com/Leo506/DatabaseConnectionInspector</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Copyright>Copyright (c) Artem Levin 2022</Copyright>
+        <PackageTags>database, tool</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
