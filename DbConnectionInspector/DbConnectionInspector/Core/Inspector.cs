@@ -48,14 +48,14 @@ public class Inspector
         var requirements = _extractor.Extract<RequireDbInspection>(context).ToList();
         
         if (!requirements.Any())
-            _logger?.LogInformation(StringConstants.NoRequireInspection);
+            _logger?.LogInformation(LoggingMessages.NoRequireInspection);
 
         foreach (var checker in requirements.SelectMany(requireDbInspection =>
                      FindAppropriateCheckers(requireDbInspection.ConnectionKey)))
         {
             if (await checker.IsConnectionEstablish()) continue;
 
-            _logger?.LogError(string.Format(StringConstants.ConnectionFailed, checker));
+            _logger?.LogError(string.Format(LoggingMessages.ConnectionFailed, checker));
             inspectionIsSuccess = false;
         }
 
