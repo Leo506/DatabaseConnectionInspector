@@ -45,32 +45,37 @@ public class Inspector
     public async Task InvokeAsync(HttpContext context)
     {
         var inspectionIsSuccess = true;
-        var requirements = _extractor.Extract<RequireDbInspection>(context);
-        foreach (var requireDbInspection in requirements)
+        var requirements = _extractor.Extract<RequireDbInspection>(context).ToList();
+        
+        if (!requirements.Any())
+            _logger?.LogInformation(StringConstants.NoRequireInspection);
+
+        foreach (var checker in requirements.SelectMany(requireDbInspection =>
+                     FindAppropriateCheckers(requireDbInspection.ConnectionKey)))
         {
-            if (requireDbInspection.ConnectionKey is null || _options.Checkers.FirstOrDefault(connectionChecker =>
-                    connectionChecker.Key == requireDbInspection.ConnectionKey) is null)
-            {
-                foreach (var connectionChecker in _options.Checkers)
-                {
-                    if (await connectionChecker.IsConnectionEstablish()) continue;
-                    inspectionIsSuccess = false;
-                }
-            }
-            else
-            {
-                var checker = _options.Checkers.FirstOrDefault(connectionChecker =>
-                    connectionChecker.Key == requireDbInspection.ConnectionKey);
-                
-                if (await checker!.IsConnectionEstablish()) continue;
-                
-                inspectionIsSuccess = false;
-            }
+            if (await checker.IsConnectionEstablish()) continue;
+
+            _logger?.LogError(string.Format(StringConstants.ConnectionFailed, checker));
+            inspectionIsSuccess = false;
         }
 
         if (inspectionIsSuccess)
             await _next.Invoke(context);
         else
             _action.Invoke(context);
+    }
+
+    private IEnumerable<IConnectionChecker> FindAppropriateCheckers(string? key)
+    {
+        if (key is null)
+            return _options.Checkers;
+        
+        var checker = _options.Checkers.FirstOrDefault(connectionChecker =>
+            connectionChecker.Key == key);
+
+        if (checker is null)
+            return _options.Checkers;
+
+        return new[] { checker };
     }
 }
